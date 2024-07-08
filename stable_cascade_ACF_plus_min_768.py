@@ -45,6 +45,8 @@ class SC_EmptyLatentImageACF_plus_min_768:
                 self.smallest_gap = gap
 #                print(f"Compression: {compression}, Latent Div: {latent_div}, New Center: {new_center}, Smallest Gap: {self.smallest_gap}")
                 final_compression_factor = compression
+        if final_compression_factor >= 81:
+            print(f"Warning! Compression factors over 80 are likely to not work when the latent is passed to Stage B. Consider a lower resolution or using Img2Img at 32 compression for higher resolutions.")
 
         if final_compression_factor is None:
             final_compression_factor = 32  # Set default compression factor to 32
