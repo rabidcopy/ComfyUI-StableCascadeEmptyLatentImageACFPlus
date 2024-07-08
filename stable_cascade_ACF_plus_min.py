@@ -43,7 +43,7 @@ class SC_EmptyLatentImageACF_plus_min:
             # Update the smallest_gap and final_compression_factor accordingly
             if gap < self.smallest_gap:
                 self.smallest_gap = gap
-#                print(f"Compression:{compression}, Latent Div:{latent_div}, New Center:{new_center}, Smallest Gap:{self.smallest_gap}")
+#                print(f"Compression: {compression}, Latent Div: {latent_div}, New Center: {new_center}, Smallest Gap: {self.smallest_gap}")
                 final_compression_factor = compression
 
         if final_compression_factor is None:
@@ -65,7 +65,7 @@ class SC_EmptyLatentImageACF_plus_min:
         if compression is None:
             raise ValueError("Unable to determine an appropriate compression factor.")
 
-        print(f"Compression set to:{compression}, Smallest Gap was:{self.smallest_gap}")
+        print(f"Compression factor set to: {compression}, Smallest Gap was: {self.smallest_gap}")
 
         c_latent = torch.zeros([batch_size, 16, height // compression, width // compression])
         b_latent = torch.zeros([batch_size, 4, height // 4, width // 4])
