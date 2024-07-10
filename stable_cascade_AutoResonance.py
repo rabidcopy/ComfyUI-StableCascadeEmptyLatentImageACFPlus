@@ -51,13 +51,13 @@ class SC_EmptyLatentImageAutoResonance:
         c_height = best_match[1]
         width_compression = (width // c_width)
         height_compression = (height // c_height)
-        compression_mean = ((width_compression + height_compression) // 2)
+        compression_mean = ((width_compression + height_compression) / 2)
 
         print(f"Stage C latent dimensions set to: {c_width}x{c_height} Compression was: {width_compression}x{height_compression}({compression_mean} mean)")
 
         # Calculate new width and height for stage B latent images based on compression factor
-        b_width = (c_width * compression_mean)
-        b_height = (c_height * compression_mean)
+        b_width = int(c_width * compression_mean)
+        b_height = int(c_height * compression_mean)
         b_width_even = self.ensure_divisible_by_32(b_width)
         b_height_even = self.ensure_divisible_by_32(b_height)
 
