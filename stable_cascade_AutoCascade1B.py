@@ -51,14 +51,14 @@ class SC_EmptyLatentImageAutoCascade1B:
         # Use the dimensions of the best matching latent size
         c_width = best_match[0]
         c_height = best_match[1]
-        width_compression = (width // c_width)
-        height_compression = (height //c_height)
+        width_compression = (width / c_width)
+        height_compression = (height / c_height)
 
         print(f"Stage C latent dimensions set to: {c_width}x{c_height} Compression was: {width_compression}x{height_compression}")
 
         # Calculate new width and height for stage B latent images based on compression factor
         b_width = (c_width * width_compression)
-        b_height = (c_height * heigh_compression)
+        b_height = (c_height * height_compression)
         b_width_even = self.ensure_divisible_by_32(b_width)
         b_height_even = self.ensure_divisible_by_32(b_height)
 
