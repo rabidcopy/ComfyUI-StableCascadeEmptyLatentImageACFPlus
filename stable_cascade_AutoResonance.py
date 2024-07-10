@@ -50,9 +50,9 @@ class SC_EmptyLatentImageAutoResonance:
         c_width = best_match[0]
         c_height = best_match[1]
         width_compression = (width // c_width)
-        heigh_compression = (height //c_height)
+        height_compression = (height //c_height)
 
-        print(f"Stage C latent dimensions set to: {c_width}x{c_height} Compression was: {width_compression}x{heigh_compression}")
+        print(f"Stage C latent dimensions set to: {c_width}x{c_height} Compression was: {width_compression}x{height_compression}")
 
         # Calculate new width and height for stage B latent images based on compression factor
         b_width = (c_width * width_compression)
