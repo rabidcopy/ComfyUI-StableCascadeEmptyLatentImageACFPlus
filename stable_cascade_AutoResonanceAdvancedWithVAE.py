@@ -74,7 +74,7 @@ class AutoResonanceAdvanced:
                 b_height = image_height // 4
 
             else:
-                # Multiply matched latent by upscale factor, floor divide by 8 and multiply by 2 to ensure divisibility by 2
+                # Multiply matched latent by upscale factor, floor divide by 32 and multiply by 8 to ensure divisibility by 2
                 b_width = int((c_width * upscale_factor) // 32) * 8
                 b_height = int((c_height * upscale_factor) // 32) * 8
 
