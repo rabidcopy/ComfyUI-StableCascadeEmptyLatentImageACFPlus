@@ -93,8 +93,8 @@ class AutoResonanceAdvanced:
 
             c_latent = torch.zeros([batch_size, 16, c_height, c_width])
 
-            b_width = width // 4
-            b_height = height // 4
+            b_width = (width // 8) * 2
+            b_height = (height // 8) * 2
 
         print(f"Stage B latent dimensions set to: {b_width}x{b_height}")
 
