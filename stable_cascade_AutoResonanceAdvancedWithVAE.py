@@ -75,8 +75,8 @@ class AutoResonanceAdvanced:
 
             else:
                 # Multiply matched latent by upscale factor, floor divide by 8 and multiply by 2 to ensure divisibility by 2
-                b_width = int((c_width * upscale_factor) // 8) * 2
-                b_height = int((c_height * upscale_factor) // 8) * 2
+                b_width = int((c_width * upscale_factor) // 32) * 8
+                b_height = int((c_height * upscale_factor) // 32) * 8
 
         else:
             # Calculate aspect ratio of the input dimensions
@@ -93,8 +93,8 @@ class AutoResonanceAdvanced:
 
             c_latent = torch.zeros([batch_size, 16, c_height, c_width])
 
-            b_width = (width // 8) * 2
-            b_height = (height // 8) * 2
+            b_width = width // 4
+            b_height = height // 4
 
         print(f"Stage B latent dimensions set to: {b_width}x{b_height}")
 
