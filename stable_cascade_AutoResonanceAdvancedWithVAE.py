@@ -1,5 +1,6 @@
 import torch
 import comfy.utils
+import math
 
 class AutoResonanceAdvanced:
     def __init__(self, device="cpu"):
@@ -74,9 +75,12 @@ class AutoResonanceAdvanced:
                 b_height = image_height // 4
 
             else:
-                # Multiply matched latent by upscale factor, floor divide by 32 and multiply by 8 to ensure divisibility by 2
-                b_width = int((c_width * upscale_factor) // 32) * 8
-                b_height = int((c_height * upscale_factor) // 32) * 8
+                # Make multiple of 32
+                def round_to_multiple(value, multiple):
+                    return int(math.ceil(value / multiple) * multiple)
+
+                b_width = round_to_multiple(c_width * upscale_factor, 32) // 4
+                b_height = round_to_multiple(c_height * upscale_factor, 32) // 4
 
         else:
             # Calculate aspect ratio of the input dimensions
