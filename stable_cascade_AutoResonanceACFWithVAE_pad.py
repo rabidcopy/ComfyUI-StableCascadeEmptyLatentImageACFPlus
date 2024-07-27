@@ -14,6 +14,8 @@ class AutoResonanceAdvancedACF:
             "batch_size": ("INT", {"default": 1, "min": 1, "max": 4096}),
             "offset": ("INT", {"default": 0, "min": -16, "max": 16}),
             "pad_shortest_to_32": ("BOOLEAN", {"default": False}),
+            "target_mean": ("BOOLEAN", {"default": False}),
+            "mean": ("FLOAT", {"default": 32, "min": 1, "max": 64, "step": 0.5}),
         }, "optional": {
             "image": ("IMAGE", {}),
             "vae": ("VAE", {})
@@ -25,7 +27,7 @@ class AutoResonanceAdvancedACF:
 
     CATEGORY = "latent/stable_cascade"
 
-    def calc_compression_factor(self, width, height):
+    def calc_compression_factor(self, width, height, target_mean=False, mean=32):
         final_compression_factor = None
         self.smallest_gap = float('inf')  # Initialize with a very large number
 
@@ -42,7 +44,10 @@ class AutoResonanceAdvancedACF:
             new_center = self.clamp(new_center, 32, 38.5)
 
             # Calculate the absolute difference between latent_div and new_center
-            gap = abs(latent_div - new_center)
+            if target_mean is True:
+                gap = abs(latent_div - mean)
+            elif target_mean is False:
+                gap = abs(latent_div - new_center)
 
             # Update the smallest_gap and final_compression_factor accordingly
             if gap < self.smallest_gap:
@@ -63,14 +68,14 @@ class AutoResonanceAdvancedACF:
     def clamp(self, value, min_value, max_value):
         return max(min_value, min(value, max_value))
 
-    def generate(self, width, height, offset, batch_size=1, image=None, vae=None, pad_shortest_to_32=False):
+    def generate(self, width, height, offset, batch_size=1, image=None, vae=None, pad_shortest_to_32=False, target_mean=False, mean=32):
 
         if image is not None and vae is not None:
             # Get the dimensions of the input image
             image_width = image.shape[-2]
             image_height = image.shape[-3]
             
-            compression = self.calc_compression_factor(image_width, image_height)
+            compression = self.calc_compression_factor(image_width, image_height, target_mean, mean)
             if compression is None:
                 raise ValueError("Unable to determine an appropriate compression factor.")
 
@@ -79,6 +84,32 @@ class AutoResonanceAdvancedACF:
             # Determine latent size from compression
             c_width = (image_width // compression) + offset
             c_height = (image_height // compression) + offset
+
+            # If target_mean is True, adjust c_width and c_height
+            if target_mean:
+                # Calculate the desired total dimension
+                target_total = mean * 2
+
+                # Compute the current total dimension
+                current_total = c_width + c_height
+
+                # Calculate the scaling factor to achieve the target total dimension
+                scale_factor = target_total / current_total
+
+                # Adjust c_width and c_height based on the scaling factor
+                c_width = int(c_width * scale_factor)
+                c_height = int(c_height * scale_factor)
+
+                # Ensure the sum of c_width and c_height is exactly target_total
+                if c_width + c_height != target_total:
+                    difference = target_total - (c_width + c_height)
+                    # Adjust the larger dimension to account for rounding differences
+                    if c_width > c_height:
+                        c_width = int(c_width + difference)
+                    else:
+                        c_height = int(c_height + difference)
+
+                print(f"Scaling factor is {scale_factor}, adjusted dimensions to total of {target_total}")
             
             shortest_edge = min(c_width, c_height)
             if shortest_edge < 32 and pad_shortest_to_32:
@@ -118,7 +149,7 @@ class AutoResonanceAdvancedACF:
 
         else:
 
-            compression = self.calc_compression_factor(width, height)
+            compression = self.calc_compression_factor(width, height, target_mean, mean)
             if compression is None:
                 raise ValueError("Unable to determine an appropriate compression factor.")
 
@@ -130,6 +161,32 @@ class AutoResonanceAdvancedACF:
             # Use the dimensions of the best matching latent size
             c_width = (width // compression) + offset
             c_height = (height // compression) + offset
+
+            # If target_mean is True, adjust c_width and c_height
+            if target_mean:
+                # Calculate the desired total dimension
+                target_total = mean * 2
+
+                # Compute the current total dimension
+                current_total = c_width + c_height
+
+                # Calculate the scaling factor to achieve the target total dimension
+                scale_factor = target_total / current_total
+
+                # Adjust c_width and c_height based on the scaling factor
+                c_width = int(c_width * scale_factor)
+                c_height = int(c_height * scale_factor)
+
+                # Ensure the sum of c_width and c_height is exactly target_total
+                if c_width + c_height != target_total:
+                    difference = target_total - (c_width + c_height)
+                    # Adjust the larger dimension to account for rounding differences
+                    if c_width > c_height:
+                        c_width = int(c_width + difference)
+                    else:
+                        c_height = int(c_height + difference)
+
+                print(f"Scaling factor is {scale_factor}, adjusted dimensions to total of {target_total}")
 
             shortest_edge = min(c_width, c_height)
             if shortest_edge < 32 and pad_shortest_to_32:

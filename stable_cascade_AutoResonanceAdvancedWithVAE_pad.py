@@ -14,6 +14,8 @@ class AutoResonanceAdvanced:
             "batch_size": ("INT", {"default": 1, "min": 1, "max": 4096}),
             "offset": ("INT", {"default": 0, "min": -16, "max": 16}),
             "pad_shortest_to_32": ("BOOLEAN", {"default": False}),
+            "target_mean": ("BOOLEAN", {"default": False}),
+            "mean": ("FLOAT", {"default": 32, "min": 1, "max": 64, "step": 0.5}),
         }, "optional": {
             "image": ("IMAGE", {}),
             "vae": ("VAE", {})
@@ -39,7 +41,7 @@ class AutoResonanceAdvanced:
         (17, 57), (17, 58), (17, 59), (17, 60), (16, 60), (16, 61)
     ]
 
-    def generate(self, width, height, offset, batch_size=1, image=None, vae=None, pad_shortest_to_32=False):
+    def generate(self, width, height, offset, batch_size=1, image=None, vae=None, pad_shortest_to_32=False, target_mean=False, mean=32):
 
         if image is not None and vae is not None:
             # Get the dimensions of the input image
@@ -53,6 +55,42 @@ class AutoResonanceAdvanced:
             # Use the dimensions of the best matching latent size
             c_width = best_match[0] + offset
             c_height = best_match[1] + offset
+
+            # If target_mean is True, adjust c_width and c_height
+            if target_mean:
+                # Calculate the desired total dimension
+                target_total = mean * 2
+
+                # Compute the current total dimension
+                current_total = c_width + c_height
+
+                # Calculate the scaling factor to achieve the target total dimension
+                scale_factor = target_total / current_total
+
+                # Adjust c_width and c_height based on the scaling factor
+                c_width = int(c_width * scale_factor)
+                c_height = int(c_height * scale_factor)
+
+                # Ensure the sum of c_width and c_height is exactly target_total
+                if c_width + c_height != target_total:
+                    difference = target_total - (c_width + c_height)
+                    # Adjust the larger dimension to account for rounding differences
+                    if c_width > c_height:
+                        c_width = int(c_width + difference)
+                    else:
+                        c_height = int(c_height + difference)
+
+                print(f"Scaling factor is {scale_factor}, adjusted dimensions to total of {target_total}")
+
+
+#            # If target_mean is True, adjust c_width and c_height
+#            if target_mean:
+#                c_dimension_mean = (c_width + c_height) / 2
+#                scale_factor = mean / c_dimension_mean
+#                c_width = int(c_width * scale_factor)
+#                c_height = int(c_height * scale_factor)
+#                print(f"Scaling factor is {scale_factor}, adjusted dimensions to mean of {mean}")
+
             shortest_edge = min(c_width, c_height)
             if shortest_edge < 32 and pad_shortest_to_32:
                 padding_factor = (32 / shortest_edge)
@@ -99,6 +137,42 @@ class AutoResonanceAdvanced:
             # Use the dimensions of the best matching latent size
             c_width = best_match[0] + offset
             c_height = best_match[1] + offset
+
+            # If target_mean is True, adjust c_width and c_height
+            if target_mean:
+                # Calculate the desired total dimension
+                target_total = mean * 2
+
+                # Compute the current total dimension
+                current_total = c_width + c_height
+
+                # Calculate the scaling factor to achieve the target total dimension
+                scale_factor = target_total / current_total
+
+                # Adjust c_width and c_height based on the scaling factor
+                c_width = int(c_width * scale_factor)
+                c_height = int(c_height * scale_factor)
+
+                # Ensure the sum of c_width and c_height is exactly target_total
+                if c_width + c_height != target_total:
+                    difference = target_total - (c_width + c_height)
+                    # Adjust the larger dimension to account for rounding differences
+                    if c_width > c_height:
+                        c_width = int(c_width + difference)
+                    else:
+                        c_height = int(c_height + difference)
+
+                print(f"Scaling factor is {scale_factor}, adjusted dimensions to total of {target_total}")
+
+
+#            # If target_mean is True, adjust c_width and c_height
+#            if target_mean:
+#                c_dimension_mean = (c_width + c_height) / 2
+#                scale_factor = mean / c_dimension_mean
+#                c_width = int(c_width * scale_factor)
+#                c_height = int(c_height * scale_factor)
+#                print(f"Scaling factor is {scale_factor}, adjusted dimensions to mean of {mean}")
+
             shortest_edge = min(c_width, c_height)
             if shortest_edge < 32 and pad_shortest_to_32:
                 padding_factor = (32 / shortest_edge)
